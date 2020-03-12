@@ -20,26 +20,26 @@ Unlike GearMenu, GUIExt is built as a plugin with the button methods exposed sta
 using COM3D2.GUIExt;
 
 namespace COM3D2.Example.Plugin
-  [PluginName("Example"), PluginVersion("0.0.0.1")]
-  public class ExamplePlugin : PluginBase
-  {
-    GameObject goButton;
-    void Awake()
-    {
-      goButton = GUIExt.Add("Example", "Toggle Example Button", (go) => { enabled = !enabled; });
-    }
-    void OnEnable()
-    {
-      GUIExt.SetFrameColor(goButton, Color.red);
-    }
-    void OnDisable()
-    {
-      GUIExt.ResetFrameColor(goButton);
-    }
-    void OnGUI() {
-      GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "Example Text");
-    }
-  }
+[PluginName("Example"), PluginVersion("0.0.0.1")]
+public class ExamplePlugin : PluginBase
+{
+	GameObject goButton;
+	void Awake()
+	{
+	goButton = GUIExt.Add("Example", "Toggle Example Button", (go) => { enabled = !enabled; });
+	}
+	void OnEnable()
+	{
+	      GUIExt.SetFrameColor(goButton, Color.red);
+	}
+	void OnDisable()
+	{
+		GUIExt.ResetFrameColor(goButton);
+	}
+	void OnGUI()
+	{
+		GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "Example Text");
+	}
 }
 ```
 
@@ -109,16 +109,16 @@ public void VisibleExplanation(string text, bool visible)
 It is defined in CM3D2 as follows:
 ```C#
 public void VisibleExplanation(string text, bool visible)
+{
+	if (visible)
 	{
-		if (visible)
-		{
-			this.m_labelExplanation.text = text;
-			this.m_labelExplanation.width = 0;
-			this.m_labelExplanation.MakePixelPerfect();
-			UISprite component = this.m_spriteExplanation.GetComponent<UISprite>();
-			component.width = this.m_labelExplanation.width + 15;
-		}
-		this.m_spriteExplanation.gameObject.SetActive(visible);
+		this.m_labelExplanation.text = text;
+		this.m_labelExplanation.width = 0;
+		this.m_labelExplanation.MakePixelPerfect();
+		UISprite component = this.m_spriteExplanation.GetComponent<UISprite>();
+		component.width = this.m_labelExplanation.width + 15;
+	}
+	this.m_spriteExplanation.gameObject.SetActive(visible);
 }
 ```
 
@@ -127,24 +127,24 @@ From here, we can see the issue is the inclusion of the `LocalizationManager.Get
 ```C#
 public static string GetTranslation(string Term, bool FixForRTL = true, int maxLineLengthForRTL = 0, bool ignoreRTLnumbers = true, bool applyParameters = false, GameObject localParametersRoot = null, string overrideLanguage = null)
 {
-  string result = null;
-  LocalizationManager.TryGetTranslation(Term, out result, FixForRTL, maxLineLengthForRTL, ignoreRTLnumbers, applyParameters, localParametersRoot, overrideLanguage);
-  return result;
+	string result = null;
+	LocalizationManager.TryGetTranslation(Term, out result, FixForRTL, maxLineLengthForRTL, ignoreRTLnumbers, applyParameters, localParametersRoot, overrideLanguage);
+	return result;
 }
 ```
 
 Essentially, the term put through the translator is set to `null` and unhandled if there isn't a stored translation already available. To avoid this, GUIExt uses reflection to access the private class fields:
 
-```
+```C#
 public static void VisibleExplanationRaw(string text, bool visible = true)
 {
-  UILabel _labelExplanation = typeof(SystemShortcut).GetField("m_labelExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UILabel;
-    _labelExplanation.text = text;
-    _labelExplanation.width = 0;
-    _labelExplanation.MakePixelPerfect();
-    UISprite _spriteExplanation = typeof(SystemShortcut).GetField("m_spriteExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UISprite;
-    _spriteExplanation.width = _labelExplanation.width + 15;
-    _spriteExplanation.gameObject.SetActive(visible);
+	UILabel _labelExplanation = typeof(SystemShortcut).GetField("m_labelExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UILabel;
+  	_labelExplanation.text = text;
+	_labelExplanation.width = 0;
+	_labelExplanation.MakePixelPerfect();
+	UISprite _spriteExplanation = typeof(SystemShortcut).GetField("m_spriteExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UISprite;
+	_spriteExplanation.width = _labelExplanation.width + 15;
+	_spriteExplanation.gameObject.SetActive(visible);
 }
 ```
 
