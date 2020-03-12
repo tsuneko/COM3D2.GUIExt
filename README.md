@@ -26,7 +26,7 @@ public class ExamplePlugin : PluginBase
 	GameObject goButton;
 	void Awake()
 	{
-	goButton = GUIExt.Add("Example", "Toggle Example Button", (go) => { enabled = !enabled; });
+		goButton = GUIExt.Add("Example", "Toggle Example Button", (go) => { enabled = !enabled; });
 	}
 	void OnEnable()
 	{
