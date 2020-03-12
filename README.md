@@ -73,6 +73,10 @@ Example Plugin=False
 ; This is the edit menu, we could hide or show other buttons here if desired
 ```
 
+It is also possible to change the maximum number of buttons allowed horizontally, leading to other possible styles such as a vertical gear menu, or a square menu. This however cannot be changed across scenes.
+
+![Vertical Gear Menu)(img/vertical.png)
+![Square Gear Menu](img/menu.png)
 
 ## SystemShortcut.VisibleExplanation
 As GUIExt is loaded as a plugin, it is able to monitor the status of the gear menu. CM3D2 plugins which were ported to COM3D2
