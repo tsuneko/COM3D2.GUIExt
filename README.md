@@ -75,10 +75,77 @@ Example Plugin=False
 
 It is also possible to change the maximum number of buttons allowed horizontally, leading to other possible styles such as a vertical gear menu, or a square menu. This however cannot be changed across scenes.
 
-![Vertical Gear Menu)(img/vertical.png)
+![Vertical Gear Menu](img/vertical.png)
 ![Square Gear Menu](img/menu.png)
 
+This value is saved in `UnityInjector/Config/GUIExtConfig.ini`. At the moment, it is the only value specified by the configuration file. If set to -1, it will default to allowing the maximum amount of icons horizontally (32 for 1920x1080px resolution).
+
+## Real-time Tooltip Fixing
+
+![Empty Tooltip](img/tooltip-not-visible.png)
+![Hotfixed Tooltip](img/tooltip-visible.png)
+
+As GUIExt is loaded as a plugin, it is able to monitor the status of the gear menu while the game is running. Tooltips are not shown when hovering over buttons provided by ported CM3D2 plugins. It is not easily possible to fix this issue without changing the CM3D2 plugins, so GUIExt will attempt to provide a tooltip based off the `name` field of the button `GameObject`. The reason why this is possible is because CM3D2.GearMenu defaulted to naming the button `GameObject`s from the plugin name. By forcing the `onHoverOut` event on each externally provided button, GUIExt is able to determine which buttons do not provide a tooltip, and provide a new wrapped `SystemShortcut.VisibleExplanation` method which will show tooltips. Unfortunately, this fix will not work on every plugin, as there are plugins which did not provide a usable `name` field. These plugins are likely to be listed as `Config(Clone)` as GearMenu buttons (and GUIExt) default to using the internal `Config` button as a child of the gear menu. As these plugins will have the same name, they will not work effectively with the hiding button feature. Additionally, there are plugins which create a new button `GameObject` on every `Update` tick. GUIExt is designed to handle plugins creating and deleting buttons upon transitioning scene, however it is not able to hotfix plugins which continually recreate the same broken button.
+
 ## SystemShortcut.VisibleExplanation
-As GUIExt is loaded as a plugin, it is able to monitor the status of the gear menu. CM3D2 plugins which were ported to COM3D2
 
+`SystemShortcut.VisibleExplanation` is defined in COM3D2's `Assembly-CSharp.dll` assembly as follows:
 
+```C#
+public void VisibleExplanation(string text, bool visible)
+{
+	if (visible)
+	{
+		this.m_labelExplanation.text = LocalizationManager.GetTranslation(text, true, 0, true, false, null, null);
+		this.m_labelExplanation.width = 0;
+		this.m_labelExplanation.MakePixelPerfect();
+		UISprite component = this.m_spriteExplanation.GetComponent<UISprite>();
+		component.width = this.m_labelExplanation.width + 15;
+	}
+	this.m_spriteExplanation.gameObject.SetActive(visible);
+}
+```
+
+It is defined in CM3D2 as follows:
+```C#
+public void VisibleExplanation(string text, bool visible)
+	{
+		if (visible)
+		{
+			this.m_labelExplanation.text = text;
+			this.m_labelExplanation.width = 0;
+			this.m_labelExplanation.MakePixelPerfect();
+			UISprite component = this.m_spriteExplanation.GetComponent<UISprite>();
+			component.width = this.m_labelExplanation.width + 15;
+		}
+		this.m_spriteExplanation.gameObject.SetActive(visible);
+}
+```
+
+From here, we can see the issue is the inclusion of the `LocalizationManager.GetTranslation` method:
+
+```C#
+public static string GetTranslation(string Term, bool FixForRTL = true, int maxLineLengthForRTL = 0, bool ignoreRTLnumbers = true, bool applyParameters = false, GameObject localParametersRoot = null, string overrideLanguage = null)
+{
+  string result = null;
+  LocalizationManager.TryGetTranslation(Term, out result, FixForRTL, maxLineLengthForRTL, ignoreRTLnumbers, applyParameters, localParametersRoot, overrideLanguage);
+  return result;
+}
+```
+
+Essentially, the term put through the translator is set to `null` and unhandled if there isn't a stored translation already available. To avoid this, GUIExt uses reflection to access the private class fields:
+
+```
+public static void VisibleExplanationRaw(string text, bool visible = true)
+{
+  UILabel _labelExplanation = typeof(SystemShortcut).GetField("m_labelExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UILabel;
+    _labelExplanation.text = text;
+    _labelExplanation.width = 0;
+    _labelExplanation.MakePixelPerfect();
+    UISprite _spriteExplanation = typeof(SystemShortcut).GetField("m_spriteExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UISprite;
+    _spriteExplanation.width = _labelExplanation.width + 15;
+    _spriteExplanation.gameObject.SetActive(visible);
+}
+```
+
+GUIExt is mostly untested, as I have not spent much time on it so far. Please create an Issue in GitHub if any errors arise.
