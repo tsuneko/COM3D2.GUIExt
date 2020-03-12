@@ -73,6 +73,18 @@ Example Plugin=False
 ; This is the edit menu, we could hide or show other buttons here if desired
 ```
 
+The names of the default gear buttons are:
+
+- Config: Settings menu
+- Ss: Screenshot Button
+- SsUi: Screenshot without UI Button
+- Shop: Link to the store page
+- ToTitle: Return to title screen Button
+- Info: Information Button
+- Help: Help Button
+- Dic: Dictionary / Glossary Menu
+- Exit: Quit game Button
+
 It is also possible to change the maximum number of buttons allowed horizontally, leading to other possible styles such as a vertical gear menu, or a square menu. This however cannot be changed across scenes.
 
 ![Vertical Gear Menu](img/vertical.png)
