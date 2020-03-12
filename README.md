@@ -49,6 +49,30 @@ GUIExt is able to hide buttons from the gear menu through modification of `Unity
 
 ![Title Screen Menu](img/title.png)
 
+The format of `UnityInjector/Config/GUIExtButtons.ini` is:
+```ini
+[Global]
+; Buttons in this section are updated on every scene change, allowing for either whitelisting or blacklisting depending on usage
+ToTitle=True
+; ToTitle is the name of the return to title screen button. In this case, we wish to only disable it in the title screen, so we enable it everywhere else
+Shop=False
+; In this example, we wish to disable the Shop button entirely. This button only appears if you are connected to the internet.
+[SceneTitle]
+; Every subsequent section has the same name as a scene. Only a few are listed in the default config, but any scene in the game can be used.
+ToTitle=False
+; As mentioned above, we wish to disable the return to title screen button while in the title screen, as it is useless.
+Help=False
+; The Help button is also greyed out in the title screen, so we will hide it.
+Dic=False
+; This is the glossary popup button, we don't need it in the title screen.
+Info=False
+; This is the tutorial popup button, we don't need it in the title screen.
+Example Plugin=False
+; The majority of plugins which use GearMenu can be hidden additionally. More details on their naming is provided below.
+[SceneEdit]
+; This is the edit menu, we could hide or show other buttons here if desired
+```
+
 
 ## SystemShortcut.VisibleExplanation
 As GUIExt is loaded as a plugin, it is able to monitor the status of the gear menu. CM3D2 plugins which were ported to COM3D2
