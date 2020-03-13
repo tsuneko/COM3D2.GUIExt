@@ -145,6 +145,37 @@ public static string GetTranslation(string Term, bool FixForRTL = true, int maxL
 }
 ```
 
+```C#
+public static bool TryGetTranslation(string Term, out string Translation, bool FixForRTL = true, int maxLineLengthForRTL = 0, bool ignoreRTLnumbers = true, bool applyParameters = false, GameObject localParametersRoot = null, string overrideLanguage = null)
+{
+	Translation = null;
+	if (string.IsNullOrEmpty(Term))
+	{
+		return false;
+	}
+	LocalizationManager.InitializeIfNeeded();
+	int i = 0;
+	int count = LocalizationManager.Sources.Count;
+	while (i < count)
+	{
+		if (LocalizationManager.Sources[i].TryGetTranslation(Term, out Translation, overrideLanguage, null, false, false))
+		{
+			if (applyParameters)
+			{
+				LocalizationManager.ApplyLocalizationParams(ref Translation, localParametersRoot);
+			}
+			if (LocalizationManager.IsRight2Left && FixForRTL)
+			{
+				Translation = LocalizationManager.ApplyRTLfix(Translation, maxLineLengthForRTL, ignoreRTLnumbers);
+			}
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
+```
+
 Essentially, the term put through the translator is set to `null` and unhandled if there isn't a stored translation already available. To avoid this, GUIExt uses reflection to access the private class fields:
 
 ```C#
