@@ -191,4 +191,6 @@ public static void VisibleExplanationRaw(string text, bool visible = true)
 }
 ```
 
+## Afterword
+
 GUIExt is mostly untested, as I have not spent much time on it so far. Please create an Issue in GitHub if any errors arise.
