@@ -6,7 +6,7 @@ Extension of [CM3D2.GearMenu](https://github.com/neguse11/CM3D2.GearMenu) ported
 - UnityInjector.dll 1.0.4.1+
 - PluginExt.dll 2.0.5727+
 
-All of the above dlls are bundled in Sybaris and BepInEx AIO packs.
+Both of the above dlls are bundled in Sybaris and BepInEx AIO packs.
 
 ## Compiling Dependencies
 
