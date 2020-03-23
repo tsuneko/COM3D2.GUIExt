@@ -6,7 +6,7 @@ This example plugin showcases simple usage of standalone GUIExt. The plugin has 
 
 TestPlugin loads and immediately disables itself.
 
-![output](../img/testpluginoutput.PNG)
+![output](../img/testpluginoutput.png)
 ![menu disabled](../img/testpluginmenu-disabled.png)
 
 Upon clicking on the TestPlugin menu button, it is enabled and creates two new buttons.
