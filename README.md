@@ -17,7 +17,7 @@ All of the required dlls are bundled in Sybaris and BepInEx AIO packs.
 Unlike GearMenu, GUIExt is built as a plugin with the button methods exposed statically. The basic usage is essentially identical to reduce effort in porting from CM3D2 to COM3D2. The main emphasis of this library was to avoid causing issues with ported CM3D2 plugins which are using GearMenu.
 
 ```C#
-using COM3D2.GUIExt;
+using COM3D2.GUIExtBase;
 
 namespace COM3D2.Example.Plugin
 [PluginName("Example"), PluginVersion("0.0.0.1")]
