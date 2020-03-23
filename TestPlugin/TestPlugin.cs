@@ -27,11 +27,12 @@ namespace COM3D2.TestPlugin.Plugin
             Write("r", ConsoleColor.Blue);
             Write("s", ConsoleColor.Magenta);
             Write("\n", ConsoleColor.White);
-            WriteLine2("Test Message without Prefix!");
+            WriteLine2("Test Message without Prefix!", false, false);
 
             GameObject.DontDestroyOnLoad(this);
             button = GUIExt.Add("TestPlugin", "Toggle TestPlugin", icon, (go) => { enabled = !enabled; });
 
+            createButtons();
             enabled = false;
 
             WriteLine("Loaded.");
