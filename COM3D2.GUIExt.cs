@@ -85,6 +85,14 @@ namespace COM3D2.GUIExtBase
             return button;
         }
 
+        public static void Destroy(GameObject button)
+        {
+            if (button != null)
+            {
+                NGUITools.Destroy(button);
+            }
+        }
+
         public static void SetFrameColor(GameObject button, Color color)
         {
             UITexture uitexture = button.GetComponentInChildren<UITexture>();
