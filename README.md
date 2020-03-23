@@ -112,6 +112,8 @@ This value is saved in `UnityInjector/Config/GUIExtConfig.ini`. At the moment, i
 ![Empty Tooltip](img/tooltip-not-visible.png)
 ![Hotfixed Tooltip](img/tooltip-visible.png)
 
+Note that the incorrect positioning of buttons in the top screenshot is due to an issue with GearMenu.
+
 As GUIExt is loaded as a plugin, it is able to monitor the status of the gear menu while the game is running. Tooltips are not shown when hovering over buttons provided by ported CM3D2 plugins. It is not easily possible to fix this issue without changing the CM3D2 plugins, so GUIExt will attempt to provide a tooltip based off the `name` field of the button `GameObject`. The reason why this is possible is because CM3D2.GearMenu defaulted to naming the button `GameObject`s from the plugin name. By forcing the `onHoverOut` event on each externally provided button, GUIExt is able to determine which buttons do not provide a tooltip, and provide a new wrapped `SystemShortcut.VisibleExplanation` method which will show tooltips. Unfortunately, this fix will not work on every plugin, as there are plugins which did not provide a usable `name` field. These plugins are likely to be listed as `Config(Clone)` as GearMenu buttons (and GUIExt) default to using the internal `Config` button as a child of the gear menu. As these plugins will have the same name, they will not work effectively with the hiding button feature. Additionally, there are plugins which create a new button `GameObject` on every `Update` tick. GUIExt is designed to handle plugins creating and deleting buttons upon transitioning scene, however it is not able to hotfix plugins which continually recreate the same broken button.
 
 ## Additional Information
