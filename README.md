@@ -4,14 +4,15 @@ Extension of [CM3D2.GearMenu](https://github.com/neguse11/CM3D2.GearMenu) ported
 ## Requirements
 
 - UnityInjector.dll 1.0.4.1+
-- ExIni.dll 1.0.2.1+
 - PluginExt.dll 2.0.5727+
 
-All of the required dlls are bundled in Sybaris and BepInEx AIO packs.
+All of the above dlls are bundled in Sybaris and BepInEx AIO packs.
 
-## Compiling Requirements
+## Compiling Dependencies
 
-- Target Framework .NET 3.5
+- Target Framework .NET 3.5 (as COM3D2's version of Unity Engine uses mscorlib 2.0.0.0)
+- COM3D2\COM3D2x64_Data\Managed\Assembly-CSharp.dll
+- COM3D2\COM3D2x64_Data\Managed\UnityEngine.dll
 
 ## Usage
 
@@ -44,7 +45,20 @@ public class ExamplePlugin : PluginBase
 }
 ```
 
-## Extension Capabilities
+Additionally, a simple function to output to console with an optional prefix and colours has been added.
+
+![Colours](img/output.png)
+
+This can be simplified by wrapping `GUIExt.WriteLine` and `GUIExt.Write` for the desired purpose:
+
+```C#
+private void WriteLine(string message, bool error = false)
+{
+    GUIExt.WriteLine("[TestPlugin] ", ConsoleColor.Green, message, ConsoleColor.White, error);
+}
+```
+
+## Extension Plugin Capabilities
 
 GUIExt is able to hide buttons from the gear menu through modification of `UnityInjector/Config/GUIExtButtons.ini`. The buttons to be hidden or visible are customisable for each scene. This does not improve performance, but it can reduce clutter, especially if many plugins are loaded which utilise GearMenu or GUIExt. An example of this is a greatly cleaned up title screen menu:
 
