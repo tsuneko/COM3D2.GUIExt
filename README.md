@@ -118,7 +118,7 @@ As GUIExt is loaded as a plugin, it is able to monitor the status of the gear me
 
 ### Using GUIExt Standalone
 
-GUIExt can be used without the extension plugin as just `GUIExt.cs`, however it will not update the positions of the buttons, or the size of the gear menu.
+GUIExt can be used without the extension plugin as just `GUIExt.cs`, however it will not update the positions of the buttons, or the size of the gear menu. The standalone file is found bundled with the [TestPlugin](https://github.com/tsuneko/COM3D2.GUIExt/blob/master/TestPlugin/GUIExt.cs).
 
 ### SystemShortcut.VisibleExplanation
 
