@@ -173,16 +173,31 @@ namespace COM3D2.GUIExtBase
             int baseMarginHeight = (int)(height / 2);
             _UIBase.width = (int)(baseMarginWidth + width * buttonsX);
             _UIBase.height = (int)(baseMarginHeight + height * buttonsY + 2f);
-            float baseOffsetHeight = baseMarginHeight * 1.5f + 1f;
+            float baseOffsetHeight = baseMarginHeight * 1.5f + 2f;
             _UIBase.transform.localPosition = new Vector3(946f, 502f + baseOffsetHeight, 0f);
             _UIGrid.transform.localPosition = new Vector3(-2f - 2 * width, -baseOffsetHeight, 0f);
 
-            int i = 0;
             foreach (Transform child in children)
             {
                 child.localPosition = new Vector3(-10000f, -10000f, 0f);
+            }
 
-                if (visibleChildren.Contains(child.name))
+            int i = 0;
+            for (int j = 0; j < visibleChildren.Count; j++)
+            {
+                foreach (Transform child in children)
+                {
+                    if (child.name == visibleChildren[j])
+                    {
+                        child.localPosition = new Vector3((i % maxButtons) * -width, (i / maxButtons) * -height, 0f);
+                        i++;
+                    }
+                }
+            }
+
+            foreach (Transform child in children)
+            {
+                if (visibleChildren.Contains(child.name) && !DefaultUIButtons.Contains(child.name))
                 {
                     UIEventTrigger _UIEventTrigger = child.GetComponent<UIEventTrigger>();
                     if (_UIEventTrigger != null)
