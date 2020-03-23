@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityInjector.ConsoleUtil;
 
-namespace COM3D2.GUIExt
+namespace COM3D2.GUIExtBase
 {
     public static class GUIExt
     {
