@@ -103,7 +103,7 @@ The names of the default gear buttons are:
 It is also possible to change the maximum number of buttons allowed horizontally, leading to other possible styles such as a vertical gear menu, or a square menu. This however cannot be changed across scenes.
 
 ![Vertical Gear Menu](img/vertical.png)
-![Square Gear Menu](img/menu.png)
+![Square Gear Menu](img/square.png)
 
 This value is saved in `UnityInjector/Config/GUIExtConfig.ini`. At the moment, it is the only value specified by the configuration file. If set to -1, it will default to allowing the maximum amount of icons horizontally (32 for 1920x1080px resolution).
 
