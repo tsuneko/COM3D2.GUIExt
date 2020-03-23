@@ -19,3 +19,7 @@ Clicking these buttons showcases different outline colours as well as console ou
 When the TestPlugin button is clicked again, it be disabled and destroy the two buttons.
 
 This should be compatible with PluginManager, although I haven't tested it.
+
+## GUIExt Standalone
+
+While the TestPlugin is built with the standalone version of `GUIExt.cs`, it does not require it and will work with the proper version of GUIExt.
