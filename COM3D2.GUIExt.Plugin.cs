@@ -10,7 +10,7 @@ using PluginExt;
 
 namespace COM3D2.GUIExtBase
 {
-    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.3")]
+    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.4")]
     public class GUIExtPlugin : ExPluginBase
     {
         public PluginConfig config;
@@ -189,35 +189,29 @@ namespace COM3D2.GUIExtBase
                 {
                     if (child.name == visibleChildren[j])
                     {
+                        if (!DefaultUIButtons.Contains(child.name))
+                        {
+                            UIEventTrigger _UIEventTrigger = child.GetComponent<UIEventTrigger>();
+                            if (_UIEventTrigger != null)
+                            {
+                                if (_UIEventTrigger.onHoverOver != null)
+                                {
+                                    foreach (EventDelegate _event in _UIEventTrigger.onHoverOver)
+                                    {
+                                        _event.Execute();
+                                    }
+                                    if (getTooltip() == "")
+                                    {
+                                        EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, _SysShortcut); });
+                                        WriteLine("[" + currentScene + "] Resolved empty tooltip for: " + child.name);
+                                    }
+                                    _SysShortcut.VisibleExplanation(null, false);
+                                }
+                            }
+                        }
                         child.localPosition = new Vector3((i % maxButtons) * -width, (i / maxButtons) * -height, 0f);
                         i++;
                     }
-                }
-            }
-
-            foreach (Transform child in children)
-            {
-                if (visibleChildren.Contains(child.name) && !DefaultUIButtons.Contains(child.name))
-                {
-                    UIEventTrigger _UIEventTrigger = child.GetComponent<UIEventTrigger>();
-                    if (_UIEventTrigger != null)
-                    {
-                        if (_UIEventTrigger.onHoverOver != null)
-                        {
-                            foreach (EventDelegate _event in _UIEventTrigger.onHoverOver)
-                            {
-                                _event.Execute();
-                            }
-                            if (getTooltip() == "")
-                            {
-                                EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, _SysShortcut); });
-                                WriteLine("[" + currentScene + "] Resolved empty tooltip for: " + child.name);
-                            }
-                            _SysShortcut.VisibleExplanation(null, false);
-                        }
-                    }
-                    child.localPosition = new Vector3((i % maxButtons) * -width, (i / maxButtons) * -height, 0f);
-                    i++;
                 }
             }
 
