@@ -7,9 +7,9 @@ using UnityEngine.SceneManagement;
 using UnityInjector.Attributes;
 using PluginExt;
 
-namespace COM3D2.GUIExt
+namespace COM3D2.GUIExtBase
 {
-    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.1")]
+    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.2")]
     public class GUIExtPlugin : ExPluginBase
     {
         public class PluginConfig
