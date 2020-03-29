@@ -18,6 +18,6 @@ Clicking these buttons showcases different outline colours as well as console ou
 ![menu buttons](../img/testpluginmenu-buttons-enabled.png)
 ![more output](../img/testpluginoutput2.PNG)
 
-When the TestPlugin button is clicked again, it be disabled and destroy the two buttons.
+When the TestPlugin button is clicked again, it is disabled and destroys the two buttons.
 
-This should be compatible with PluginManager, although I haven't tested it.
+This should be compatible with CM3D2 PluginManager, although I haven't tested it.
