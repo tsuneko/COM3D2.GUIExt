@@ -16,7 +16,7 @@ Both of the above dlls are bundled in Sybaris and BepInEx AIO packs.
 
 ## Usage
 
-Unlike GearMenu, GUIExt is built as a plugin with the button methods exposed statically. The basic usage is essentially identical to reduce effort in porting from CM3D2 to COM3D2. The main emphasis of this library was to avoid causing issues with ported CM3D2 plugins which are using GearMenu. GUIExt can be used without the extension plugin as just `GUIExt.cs`, however it will not update the positions of the buttons, or the size of the gear menu. The standalone file is found bundled with the [TestPlugin](https://github.com/tsuneko/COM3D2.GUIExt/blob/master/TestPlugin).
+Unlike GearMenu, GUIExt is built as a plugin with the button methods exposed statically. The basic usage is essentially identical to reduce effort in porting from CM3D2 to COM3D2. The main emphasis of this library was to avoid causing issues with ported CM3D2 plugins which are using GearMenu. GUIExt can be used without the extension plugin by the inclusion of only `COM3D2.GUIExt.cs`, however it will not update the positions of the buttons, or the size of the gear menu.
 
 ```C#
 using COM3D2.GUIExtBase;
