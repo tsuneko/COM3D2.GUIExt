@@ -10,7 +10,7 @@ using PluginExt;
 
 namespace COM3D2.GUIExtBase
 {
-    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.4")]
+    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.5")]
     public class GUIExtPlugin : ExPluginBase
     {
         public PluginConfig config;
@@ -23,7 +23,6 @@ namespace COM3D2.GUIExtBase
         private SystemShortcut _SysShortcut = GameMain.Instance.SysShortcut;
         private GameObject _Base;
         private GameObject _Grid;
-        private UISprite _UIBase;
         private UIGrid _UIGrid;
         private List<Transform> children;
         private List<string> visibleChildren;
@@ -112,7 +111,6 @@ namespace COM3D2.GUIExtBase
         {
             _Base = _SysShortcut.transform.Find("Base").gameObject;
             _Grid = _Base.transform.Find("Grid").gameObject;
-            _UIBase = _Base.GetComponent<UISprite>();
             _UIGrid = _Grid.GetComponent<UIGrid>();
             children = _UIGrid.GetChildList();
             if (children.Count != numButtons || changedScene == true)
@@ -152,73 +150,31 @@ namespace COM3D2.GUIExtBase
             return false;
         }
 
-        public void updateUIObjects(string currentScene, int maxButtonsPerLine = -1)
+        public void fixTooltips()
         {
-            // Fix positions
-            float width = _UIGrid.cellWidth;
-            float height = width;
-            _UIGrid.pivot = UIWidget.Pivot.TopLeft;
-            _UIGrid.arrangement = UIGrid.Arrangement.CellSnap;
-            _UIGrid.sorting = UIGrid.Sorting.None;
-            _UIGrid.maxPerLine = (int)(Screen.width / (width / UIRoot.GetPixelSizeAdjustment(_Base)) * (3f / 4f));
-            if (maxButtonsPerLine > 0)
-            {
-                _UIGrid.maxPerLine = Math.Min(_UIGrid.maxPerLine, maxButtonsPerLine);
-            }
-            int maxButtons = _UIGrid.maxPerLine;
-            int buttonsX = Math.Min(visibleChildren.Count, maxButtons);
-            int buttonsY = Math.Max(1, (visibleChildren.Count - 1) / maxButtons + 1);
-            _UIBase.pivot = UIWidget.Pivot.TopRight;
-            int baseMarginWidth = (int)(width * 3 / 2 + 8);
-            int baseMarginHeight = (int)(height / 2);
-            _UIBase.width = (int)(baseMarginWidth + width * buttonsX);
-            _UIBase.height = (int)(baseMarginHeight + height * buttonsY + 2f);
-            float baseOffsetHeight = baseMarginHeight * 1.5f + 2f;
-            _UIBase.transform.localPosition = new Vector3(946f, 502f + baseOffsetHeight, 0f);
-            _UIGrid.transform.localPosition = new Vector3(-2f - 2 * width, -baseOffsetHeight, 0f);
-
             foreach (Transform child in children)
             {
-                child.localPosition = new Vector3(-10000f, -10000f, 0f);
-            }
-
-            int i = 0;
-            for (int j = 0; j < visibleChildren.Count; j++)
-            {
-                foreach (Transform child in children)
+                if (!DefaultUIButtons.Contains(child.name))
                 {
-                    if (child.name == visibleChildren[j])
+                    UIEventTrigger _UIEventTrigger = child.GetComponent<UIEventTrigger>();
+                    if (_UIEventTrigger != null)
                     {
-                        if (!DefaultUIButtons.Contains(child.name))
+                        if (_UIEventTrigger.onHoverOver != null)
                         {
-                            UIEventTrigger _UIEventTrigger = child.GetComponent<UIEventTrigger>();
-                            if (_UIEventTrigger != null)
+                            foreach (EventDelegate _event in _UIEventTrigger.onHoverOver)
                             {
-                                if (_UIEventTrigger.onHoverOver != null)
-                                {
-                                    foreach (EventDelegate _event in _UIEventTrigger.onHoverOver)
-                                    {
-                                        _event.Execute();
-                                    }
-                                    if (getTooltip() == "")
-                                    {
-                                        EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, _SysShortcut); });
-                                        WriteLine("[" + currentScene + "] Resolved empty tooltip for: " + child.name);
-                                    }
-                                    _SysShortcut.VisibleExplanation(null, false);
-                                }
+                                _event.Execute();
                             }
+                            if (getTooltip() == "")
+                            {
+                                EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, _SysShortcut); });
+                                WriteLine("[" + currentScene + "] Resolved empty tooltip for: " + child.name);
+                            }
+                            _SysShortcut.VisibleExplanation(null, false);
                         }
-                        child.localPosition = new Vector3((i % maxButtons) * -width, (i / maxButtons) * -height, 0f);
-                        i++;
                     }
                 }
             }
-
-            UISprite _tooltip = typeof(SystemShortcut).GetField("m_spriteExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UISprite;
-            Vector3 pos = _tooltip.transform.localPosition;
-            pos.y = _Base.transform.localPosition.y - _UIBase.height - _tooltip.height;
-            _tooltip.transform.localPosition = pos;
         }
 
         private void updateHiddenButtons()
@@ -247,13 +203,9 @@ namespace COM3D2.GUIExtBase
                 {
                     DefaultUIButtons.Insert(3, "Shop");
                 }
-
                 config = ReadConfig<PluginConfig>();
                 SaveConfig<PluginConfig>(config);
                 loadButtonsConfig();
-
-                updateHiddenButtons();
-                getUIObjects(hiddenButtons, currentScene, true);
             }
             catch (Exception e)
             {
@@ -268,7 +220,8 @@ namespace COM3D2.GUIExtBase
             {
                 if (getUIObjects(hiddenButtons, currentScene))
                 {
-                    updateUIObjects(currentScene, config.MaxButtonsPerLine);
+                    GUIExt.repositionButtons(config.MaxButtonsPerLine);
+                    fixTooltips();
                 }
             }
             catch (Exception e)
@@ -285,7 +238,8 @@ namespace COM3D2.GUIExtBase
             {
                 if (getUIObjects(hiddenButtons, currentScene, true))
                 {
-                    updateUIObjects(currentScene, config.MaxButtonsPerLine);
+                    GUIExt.repositionButtons(config.MaxButtonsPerLine);
+                    fixTooltips();
                 }
             }
             catch (Exception e)
