@@ -7,7 +7,7 @@ using UnityInjector.ConsoleUtil;
 namespace COM3D2.GUIExtBase
 {
     public static class GUIExt
-    { 
+    {
         private static SystemShortcut _SysShortcut = GameMain.Instance.SysShortcut;
         private static List<string> DefaultUIButtons = new List<string>() { "Config", "Ss", "SsUi", "ToTitle", "Info", "Help", "Dic", "Exit" };
 
@@ -84,7 +84,7 @@ namespace COM3D2.GUIExtBase
             uitexture.material = new Material(uitexture.shader);
             uitexture.material.mainTexture = texture;
             uitexture.MakePixelPerfect();
-            updateUIObjects();
+            repositionButtons();
             return button;
         }
 
@@ -93,7 +93,7 @@ namespace COM3D2.GUIExtBase
             if (button != null)
             {
                 NGUITools.Destroy(button);
-                updateUIObjects();
+                repositionButtons();
             }
         }
 
@@ -127,7 +127,7 @@ namespace COM3D2.GUIExtBase
             SetFrameColor(button, new Color(1f, 1f, 1f, 0f));
         }
 
-        public static void updateUIObjects()
+        public static void repositionButtons(int maxButtonsPerLine = -1)
         {
             GameObject _Base = _SysShortcut.transform.Find("Base").gameObject;
             GameObject _Grid = _Base.transform.Find("Grid").gameObject;
@@ -140,6 +140,10 @@ namespace COM3D2.GUIExtBase
             _UIGrid.arrangement = UIGrid.Arrangement.CellSnap;
             _UIGrid.sorting = UIGrid.Sorting.None;
             _UIGrid.maxPerLine = (int)(Screen.width / (width / UIRoot.GetPixelSizeAdjustment(_Base)) * (3f / 4f));
+            if (maxButtonsPerLine > 0)
+            {
+                _UIGrid.maxPerLine = Math.Min(_UIGrid.maxPerLine, maxButtonsPerLine);
+            }
             int buttonsX = Math.Min(children.Count, _UIGrid.maxPerLine);
             int buttonsY = Math.Max(1, (children.Count - 1) / _UIGrid.maxPerLine + 1);
             _UIBase.pivot = UIWidget.Pivot.TopRight;
