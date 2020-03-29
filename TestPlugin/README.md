@@ -1,6 +1,6 @@
 # COM3D2.GUIExt TestPlugin
 
-This example plugin showcases simple usage of `COM3D2.GUIExt.cs`.
+This example plugin showcases simple usage of `COM3D2.GUIExt.cs` without the inclusion of the GUIExt plugin.
 
 ## Example
 
