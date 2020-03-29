@@ -1,13 +1,15 @@
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityInjector.ConsoleUtil;
 
 namespace COM3D2.GUIExtBase
 {
     public static class GUIExt
-    { 
+    {
         private static SystemShortcut _SysShortcut = GameMain.Instance.SysShortcut;
+        private static List<string> DefaultUIButtons = new List<string>() { "Config", "Ss", "SsUi", "ToTitle", "Info", "Help", "Dic", "Exit" };
 
         public static void WriteLine(string prefix, ConsoleColor prefixColor, string message, ConsoleColor messageColor, bool error = false)
         {
@@ -82,6 +84,7 @@ namespace COM3D2.GUIExtBase
             uitexture.material = new Material(uitexture.shader);
             uitexture.material.mainTexture = texture;
             uitexture.MakePixelPerfect();
+            repositionButtons();
             return button;
         }
 
@@ -90,6 +93,7 @@ namespace COM3D2.GUIExtBase
             if (button != null)
             {
                 NGUITools.Destroy(button);
+                repositionButtons();
             }
         }
 
@@ -121,6 +125,68 @@ namespace COM3D2.GUIExtBase
         public static void ResetFrameColor(GameObject button)
         {
             SetFrameColor(button, new Color(1f, 1f, 1f, 0f));
+        }
+
+        public static void repositionButtons(int maxButtonsPerLine = -1)
+        {
+            GameObject _Base = _SysShortcut.transform.Find("Base").gameObject;
+            GameObject _Grid = _Base.transform.Find("Grid").gameObject;
+            UISprite _UIBase = _Base.GetComponent<UISprite>();
+            UIGrid _UIGrid = _Grid.GetComponent<UIGrid>();
+            List<Transform> children = _UIGrid.GetChildList();
+            float width = _UIGrid.cellWidth;
+            float height = width;
+            _UIGrid.pivot = UIWidget.Pivot.TopLeft;
+            _UIGrid.arrangement = UIGrid.Arrangement.CellSnap;
+            _UIGrid.sorting = UIGrid.Sorting.None;
+            _UIGrid.maxPerLine = (int)(Screen.width / (width / UIRoot.GetPixelSizeAdjustment(_Base)) * (3f / 4f));
+            if (maxButtonsPerLine > 0)
+            {
+                _UIGrid.maxPerLine = Math.Min(_UIGrid.maxPerLine, maxButtonsPerLine);
+            }
+            int buttonsX = Math.Min(children.Count, _UIGrid.maxPerLine);
+            int buttonsY = Math.Max(1, (children.Count - 1) / _UIGrid.maxPerLine + 1);
+            _UIBase.pivot = UIWidget.Pivot.TopRight;
+            int baseMarginWidth = (int)(width * 3 / 2 + 8);
+            int baseMarginHeight = (int)(height / 2);
+            _UIBase.width = (int)(baseMarginWidth + width * buttonsX);
+            _UIBase.height = (int)(baseMarginHeight + height * buttonsY + 2f);
+            float baseOffsetHeight = baseMarginHeight * 1.5f + 2f;
+            _UIBase.transform.localPosition = new Vector3(946f, 502f + baseOffsetHeight, 0f);
+            _UIGrid.transform.localPosition = new Vector3(-2f - 2 * width, -baseOffsetHeight, 0f);
+
+            List<string> UIButtons = new List<string>(DefaultUIButtons);
+            if (GameMain.Instance.CMSystem.NetUse)
+            {
+                UIButtons.Insert(3, "Shop");
+            }
+
+            int i = 0;
+            for (int j = 0; j < UIButtons.Count; j++)
+            {
+                foreach (Transform child in children)
+                {
+                    if (child.name == UIButtons[j])
+                    {
+                        child.localPosition = new Vector3((UIButtons.IndexOf(child.name) % _UIGrid.maxPerLine) * -width, (UIButtons.IndexOf(child.name) / _UIGrid.maxPerLine) * -height, 0f);
+                        i++;
+                    }
+                }
+            }
+
+            foreach (Transform child in children)
+            {
+                if (!UIButtons.Contains(child.name))
+                {
+                    child.localPosition = new Vector3((i % _UIGrid.maxPerLine) * -width, (i / _UIGrid.maxPerLine) * -height, 0f);
+                    i++;
+                }
+            }
+
+            UISprite _tooltip = typeof(SystemShortcut).GetField("m_spriteExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UISprite;
+            Vector3 pos = _tooltip.transform.localPosition;
+            pos.y = _Base.transform.localPosition.y - _UIBase.height - _tooltip.height;
+            _tooltip.transform.localPosition = pos;
         }
 
         public static void VisibleExplanationRaw(string text, bool visible = true)
