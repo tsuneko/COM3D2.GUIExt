@@ -105,7 +105,17 @@ It is also possible to change the maximum number of buttons allowed horizontally
 ![Vertical Gear Menu](img/vertical.png)
 ![Square Gear Menu](img/square.png)
 
-This value is saved in `UnityInjector/Config/GUIExtConfig.ini`. At the moment, it is the only value specified by the configuration file. If set to -1, it will default to allowing the maximum amount of icons horizontally (32 for 1920x1080px resolution).
+This can be done by modifying the configuration file found at `UnityInjector/Config/GUIExtConfig.ini`.
+
+```ini
+[Config]
+PluginEnabled=True
+; Disable the plugin
+MaxButtonsPerLine=-1
+; Set to -1 to allow the maximum amount of icons horizontally (32 for 1920x1080px resolution
+RemoveButtons=True
+; Disable the button removal feature
+```
 
 ## Real-time Tooltip Fixing
 
