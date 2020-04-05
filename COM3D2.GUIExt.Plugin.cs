@@ -144,17 +144,21 @@ namespace COM3D2.GUIExtBase
                 }
                 config = ReadConfig<PluginConfig>();
                 SaveConfig<PluginConfig>(config);
-                if (!config.PluginEnabled)
-                {
-                    enabled = false;
-                }
                 loadButtonsConfig();
             }
             catch (Exception e)
             {
                 WriteLine(e.ToString(), true);
             }
-            WriteLine("Intialised.");
+
+            if (config.PluginEnabled)
+            {
+                WriteLine("Initialised.");
+            }
+            else
+            {
+                this.enabled = false;
+            }
         }
 
         public void Update()
