@@ -127,13 +127,21 @@ namespace COM3D2.GUIExtBase
             SetFrameColor(button, new Color(1f, 1f, 1f, 0f));
         }
 
-        public static void repositionButtons(int maxButtonsPerLine = -1)
+        public static void repositionButtons(int maxButtonsPerLine = -1, List<string> hiddenButtons = null)
         {
             GameObject _Base = _SysShortcut.transform.Find("Base").gameObject;
             GameObject _Grid = _Base.transform.Find("Grid").gameObject;
             UISprite _UIBase = _Base.GetComponent<UISprite>();
             UIGrid _UIGrid = _Grid.GetComponent<UIGrid>();
             List<Transform> children = _UIGrid.GetChildList();
+            int numButtons = 0;
+            foreach (Transform child in children)
+            {
+                if (hiddenButtons != null && !hiddenButtons.Contains(child.name))
+                {
+                    numButtons++;
+                }
+            }
             float width = _UIGrid.cellWidth;
             float height = width;
             _UIGrid.pivot = UIWidget.Pivot.TopLeft;
@@ -144,8 +152,8 @@ namespace COM3D2.GUIExtBase
             {
                 _UIGrid.maxPerLine = Math.Min(_UIGrid.maxPerLine, maxButtonsPerLine);
             }
-            int buttonsX = Math.Min(children.Count, _UIGrid.maxPerLine);
-            int buttonsY = Math.Max(1, (children.Count - 1) / _UIGrid.maxPerLine + 1);
+            int buttonsX = Math.Min(numButtons, _UIGrid.maxPerLine);
+            int buttonsY = Math.Max(1, (numButtons - 1) / _UIGrid.maxPerLine + 1);
             _UIBase.pivot = UIWidget.Pivot.TopRight;
             int baseMarginWidth = (int)(width * 3 / 2 + 8);
             int baseMarginHeight = (int)(height / 2);
@@ -166,9 +174,13 @@ namespace COM3D2.GUIExtBase
             {
                 foreach (Transform child in children)
                 {
-                    if (child.name == UIButtons[j])
+                    if (hiddenButtons != null && hiddenButtons.Contains(child.name))
                     {
-                        child.localPosition = new Vector3((UIButtons.IndexOf(child.name) % _UIGrid.maxPerLine) * -width, (UIButtons.IndexOf(child.name) / _UIGrid.maxPerLine) * -height, 0f);
+                        child.localPosition = new Vector3(10000, 10000);
+                    }
+                    else if (child.name == UIButtons[j])
+                    {
+                        child.localPosition = new Vector3((i % _UIGrid.maxPerLine) * -width, (i / _UIGrid.maxPerLine) * -height, 0f);
                         i++;
                     }
                 }
@@ -176,7 +188,11 @@ namespace COM3D2.GUIExtBase
 
             foreach (Transform child in children)
             {
-                if (!UIButtons.Contains(child.name))
+                if (hiddenButtons != null && hiddenButtons.Contains(child.name))
+                {
+                    child.localPosition = new Vector3(10000, 10000);
+                }
+                else if (!UIButtons.Contains(child.name))
                 {
                     child.localPosition = new Vector3((i % _UIGrid.maxPerLine) * -width, (i / _UIGrid.maxPerLine) * -height, 0f);
                     i++;
