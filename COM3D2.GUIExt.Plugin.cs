@@ -10,26 +10,24 @@ using PluginExt;
 
 namespace COM3D2.GUIExtBase
 {
-    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.5")]
+    [PluginFilter("COM3D2x64"), PluginName("COM3D2.GUIExt.Plugin"), PluginVersion("0.0.0.6")]
     public class GUIExtPlugin : ExPluginBase
     {
         public PluginConfig config;
 
         private string currentScene = "Global";
-        private Dictionary<string, bool> hiddenButtons;
+        private List<Transform> children = GameMain.Instance.SysShortcut.transform.Find("Base").gameObject.transform.Find("Grid").gameObject.GetComponent<UIGrid>().GetChildList();
+        private Dictionary<string, bool> hiddenButtonsDic;
+        private List<string> hiddenButtonsList;
         private Dictionary<string, Dictionary<string, bool>> buttonsConfig = new Dictionary<string, Dictionary<string, bool>>();
         private List<string> DefaultUIButtons = new List<string>() { "Config", "Ss", "SsUi", "ToTitle", "Info", "Help", "Dic", "Exit" };
 
-        private SystemShortcut _SysShortcut = GameMain.Instance.SysShortcut;
-        private GameObject _Base;
-        private GameObject _Grid;
-        private UIGrid _UIGrid;
-        private List<Transform> children;
-        private List<string> visibleChildren;
         private int numButtons;
-
+        
         public class PluginConfig
         {
+			public bool PluginEnabled = true;
+            public bool RemoveButtons = true;
             public int MaxButtonsPerLine = -1;
         }
 
@@ -103,51 +101,8 @@ namespace COM3D2.GUIExtBase
 
         public string getTooltip()
         {
-            UILabel _labelExplanation = typeof(SystemShortcut).GetField("m_labelExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_SysShortcut) as UILabel;
+            UILabel _labelExplanation = typeof(SystemShortcut).GetField("m_labelExplanation", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(GameMain.Instance.SysShortcut) as UILabel;
             return _labelExplanation.text;
-        }
-
-        public bool getUIObjects(Dictionary<string, bool> hiddenButtons, string currentScene, bool changedScene = false)
-        {
-            _Base = _SysShortcut.transform.Find("Base").gameObject;
-            _Grid = _Base.transform.Find("Grid").gameObject;
-            _UIGrid = _Grid.GetComponent<UIGrid>();
-            children = _UIGrid.GetChildList();
-            if (children.Count != numButtons || changedScene == true)
-            {
-                numButtons = children.Count;
-                visibleChildren = new List<string>();
-                for (int i = 0; i < DefaultUIButtons.Count; i++)
-                {
-                    if (hiddenButtons.ContainsKey(DefaultUIButtons[i]) && hiddenButtons[DefaultUIButtons[i]] == false)
-                    {
-                        if (changedScene)
-                        {
-                            WriteLine("[" + currentScene + "] Removed button: " + DefaultUIButtons[i]);
-                        }
-                        continue;
-                    }
-                    visibleChildren.Add(DefaultUIButtons[i]);
-                }
-                for (int i = 0; i < children.Count; i++)
-                {
-                    if (DefaultUIButtons.Contains(children[i].name))
-                    {
-                        continue;
-                    }
-                    else if (hiddenButtons.ContainsKey(children[i].name) && hiddenButtons[children[i].name] == false)
-                    {
-                        if (changedScene)
-                        {
-                            WriteLine("[" + currentScene + "] Removed button: " + children[i].name);
-                        }
-                        continue;
-                    }
-                    visibleChildren.Add(children[i].name);
-                }
-                return true;
-            }
-            return false;
         }
 
         public void fixTooltips()
@@ -167,28 +122,12 @@ namespace COM3D2.GUIExtBase
                             }
                             if (getTooltip() == "")
                             {
-                                EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, _SysShortcut); });
+                                EventDelegate.Set(_UIEventTrigger.onHoverOver, () => { GUIExt.VisibleExplanationRaw(child.name, GameMain.Instance.SysShortcut); });
                                 WriteLine("[" + currentScene + "] Resolved empty tooltip for: " + child.name);
                             }
-                            _SysShortcut.VisibleExplanation(null, false);
+                            GameMain.Instance.SysShortcut.VisibleExplanation(null, false);
                         }
                     }
-                }
-            }
-        }
-
-        private void updateHiddenButtons()
-        {
-            hiddenButtons = new Dictionary<string, bool>();
-            foreach (string k in buttonsConfig["Global"].Keys)
-            {
-                hiddenButtons[k] = buttonsConfig["Global"][k];
-            }
-            if (buttonsConfig.ContainsKey(currentScene))
-            {
-                foreach (string k in buttonsConfig[currentScene].Keys)
-                {
-                    hiddenButtons[k] = buttonsConfig[currentScene][k];
                 }
             }
         }
@@ -205,6 +144,10 @@ namespace COM3D2.GUIExtBase
                 }
                 config = ReadConfig<PluginConfig>();
                 SaveConfig<PluginConfig>(config);
+                if (!config.PluginEnabled)
+                {
+                    enabled = false;
+                }
                 loadButtonsConfig();
             }
             catch (Exception e)
@@ -218,9 +161,11 @@ namespace COM3D2.GUIExtBase
         {
             try
             {
-                if (getUIObjects(hiddenButtons, currentScene))
+                children = GameMain.Instance.SysShortcut.transform.Find("Base").gameObject.transform.Find("Grid").gameObject.GetComponent<UIGrid>().GetChildList();
+                if (children.Count != numButtons)
                 {
-                    GUIExt.repositionButtons(config.MaxButtonsPerLine);
+                    numButtons = children.Count;
+                    GUIExt.repositionButtons(config.MaxButtonsPerLine, hiddenButtonsList);
                     fixTooltips();
                 }
             }
@@ -230,17 +175,38 @@ namespace COM3D2.GUIExtBase
             }
         }
 
+        private void UpdateHiddenButtons()
+        {
+            hiddenButtonsDic = new Dictionary<string, bool>();
+            foreach (string k in buttonsConfig["Global"].Keys)
+            {
+                hiddenButtonsDic[k] = buttonsConfig["Global"][k];
+            }
+            if (buttonsConfig.ContainsKey(currentScene))
+            {
+                foreach (string k in buttonsConfig[currentScene].Keys)
+                {
+                    hiddenButtonsDic[k] = buttonsConfig[currentScene][k];
+                }
+            }
+            hiddenButtonsList = new List<string>();
+            foreach (string k in hiddenButtonsDic.Keys)
+            {
+                if (hiddenButtonsDic[k] == false)
+                {
+                    hiddenButtonsList.Add(k);
+                }
+            }
+        }
+
         private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
             currentScene = scene.name;
-            updateHiddenButtons();
+            UpdateHiddenButtons();
             try
             {
-                if (getUIObjects(hiddenButtons, currentScene, true))
-                {
-                    GUIExt.repositionButtons(config.MaxButtonsPerLine);
-                    fixTooltips();
-                }
+                GUIExt.repositionButtons(config.MaxButtonsPerLine, config.RemoveButtons ? hiddenButtonsList : null);
+                fixTooltips();
             }
             catch (Exception e)
             {
