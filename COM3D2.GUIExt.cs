@@ -135,11 +135,18 @@ namespace COM3D2.GUIExtBase
             UIGrid _UIGrid = _Grid.GetComponent<UIGrid>();
             List<Transform> children = _UIGrid.GetChildList();
             int numButtons = 0;
-            foreach (Transform child in children)
+            if (hiddenButtons == null)
             {
-                if (hiddenButtons != null && !hiddenButtons.Contains(child.name))
+                numButtons = children.Count;
+            }
+            else
+            {
+                foreach (Transform child in children)
                 {
-                    numButtons++;
+                    if (!hiddenButtons.Contains(child.name))
+                    {
+                        numButtons++;
+                    }
                 }
             }
             float width = _UIGrid.cellWidth;
